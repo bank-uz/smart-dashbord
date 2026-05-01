@@ -3,31 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aqlli Investitsiya Dashbordi (Multi-Sheet)</title>
+    <title>Multi-List Aqlli Dashbord</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
-        .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); padding: 20px; border: 1px solid #e2e8f0; }
-        #login-screen { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 50; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-        .tab-btn { transition: all 0.2s; }
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 20px; border: 1px solid #e2e8f0; }
+        #login-screen { position: fixed; inset: 0; background: rgba(15,23,42,0.95); z-index: 50; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #1d4ed8; background: #eff6ff; font-weight: bold; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center">
-            <svg class="mx-auto h-12 w-12 text-blue-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-800">Tizimga kirish</h2>
-            <p class="text-gray-500 mt-2 text-sm mb-6">Dashbordni ko'rish uchun maxfiy parolni kiriting</p>
-            
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Tizimga kirish</h2>
+            <p class="text-gray-500 text-sm mb-6">Dashbordni ochish uchun parolni kiriting</p>
             <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-4" placeholder="Parol (hudud30)" onkeypress="if(event.key === 'Enter') checkPassword()">
-            <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Tizimga kirish</button>
+            <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Kirish</button>
             <p id="error-msg" class="text-red-500 text-sm mt-3 hidden">Parol noto'g'ri!</p>
         </div>
     </div>
@@ -37,56 +33,56 @@
         
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800">Kompleks Tahlil Dashbordi</h1>
-                <p class="text-slate-500 mt-1">Google Sheets barcha listlari asosidagi aqlli tahlil</p>
+                <h1 class="text-3xl font-bold text-slate-800">Kompleks Investitsiya Dashbordi</h1>
+                <p class="text-slate-500 mt-1">Barcha bo'linmalar (listlar) bo'yicha aqlli tahlil</p>
             </div>
             <div class="text-sm bg-blue-50 text-blue-700 py-2 px-4 rounded-lg font-semibold border border-blue-200" id="status">
-                Ma'lumotlar kutilmoqda...
+                Ma'lumotlar ulanmoqda...
             </div>
         </header>
 
-        <!-- TABS (Bo'linmalar) -->
-        <div id="tabs-container" class="flex flex-wrap gap-2 mb-8 border-b pb-4">
-            <!-- Dinamik tarzda tugmalar qo'shiladi -->
+        <!-- BO'LINMALAR (TABS) -->
+        <div id="tabs-container" class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-0">
+            <!-- Dinamik tarzda shu yerda tugmalar hosil bo'ladi -->
         </div>
 
-        <!-- DYNAMIC CONTENT AREA -->
+        <!-- TAHLIL OYNASI -->
         <div id="sheet-view">
-            <!-- KPI qismi -->
-            <div id="kpi-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8"></div>
+            <!-- KPI -->
+            <div id="kpi-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
             
-            <!-- Grafiklar qismi -->
+            <!-- GRAFIKLAR -->
             <div id="charts-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
 
-            <!-- Xulosalar qismi -->
-            <div class="glass-card bg-slate-800 text-white border-none mt-8">
+            <!-- XULOSA QISMI -->
+            <div class="glass-card bg-slate-800 text-white border-none mt-4">
                 <h2 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Tahlil xulosasi va muhokama qilinadigan masalalar
+                    Tahlil xulosasi va muhokama uchun yo'nalishlar
                 </h2>
-                <ul id="analysis-text" class="list-disc pl-5 space-y-3 text-slate-200 text-sm leading-relaxed">
-                    <!-- Aqlli matn generatsiya qilinadi -->
+                <ul id="analysis-text" class="list-disc pl-5 space-y-4 text-slate-200 text-sm leading-relaxed">
+                    <!-- Aqlli xulosa shu yerga tushadi -->
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // SOZLAMALAR QISMI (SHU YERNI O'ZGARTIRASIZ)
-        // ==========================================
+        // =========================================================================
+        // 1. DIQQAT: SHU YERNI O'Z FAYLINGIZGA MOSLAB O'ZGARTIRING
+        // =========================================================================
         const SHEET_ID = '1UT8kIRpmQYdhbYC5mREZGqroPWlw4ICrWa_UCOjsvoA';
         
-        // DIQQAT: Excel/Google Sheets dagi listlarning PASTKI qismida yozilgan nomlarini xuddi o'zidek qilib shu yerga yozing.
+        // Listlar nomini harfma-harf xato qilmasdan yozing:
         const SHEET_NAMES = [
-            'dashdastur_google_sheets (1)', 
-            'hudud', // Agar qo'shimcha listlar bo'lsa shunday qo'shib borasiz
-            'tarmoqlar'
+            'hudud', 
+            'tarmoqlar', 
+          
         ];
-        // ==========================================
+        // =========================================================================
 
         let sheetsData = {};
-        let activeChartInstances = [];
+        let activeCharts = [];
 
         function checkPassword() {
             if(document.getElementById('password').value === 'hudud30') {
@@ -100,6 +96,7 @@
             }
         }
 
+        // Raqamlarni tozalab (probel, harflar, vergullardan) sof songa aylantirish
         const parseNum = (val) => {
             if(!val) return 0;
             if(typeof val === 'number') return val;
@@ -108,27 +105,27 @@
             return isNaN(num) ? 0 : num;
         };
 
-        // CSV ni Promise yordamida yuklash
+        // Bitta listni Google Sheets dan tortib olish
         function fetchSheetData(sheetName) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
                 Papa.parse(url, {
                     download: true,
                     header: true,
                     complete: function(results) {
-                        let validData = results.data.filter(row => Object.values(row).join('').trim() !== ''); // Bo'sh qatorlarni tozalash
+                        let validData = results.data.filter(row => Object.values(row).join('').trim() !== ''); // Bo'sh qatorlarni tashlab yuborish
                         resolve({ name: sheetName, data: validData });
                     },
-                    error: function(error) {
-                        resolve({ name: sheetName, data: [], error: true }); // Xato bo'lsa ham tizim qotmasligi uchun
+                    error: function() {
+                        resolve({ name: sheetName, data: [], error: true });
                     }
                 });
             });
         }
 
-        // Barcha listlarni bir vaqtda yuklab olish
+        // Barcha listlarni birdaniga yuklash
         async function loadAllSheets() {
-            document.getElementById('status').innerText = 'Barcha listlar yuklanmoqda...';
+            document.getElementById('status').innerText = 'Jadvallar o\'qilmoqda...';
             
             const fetchPromises = SHEET_NAMES.map(name => fetchSheetData(name));
             const results = await Promise.all(fetchPromises);
@@ -142,172 +139,177 @@
                     sheetsData[res.name] = res.data;
                     loadedCount++;
                     
-                    // Tab tugmasini yaratish
                     let btn = document.createElement('button');
-                    btn.className = `tab-btn px-4 py-2 rounded-lg border font-semibold text-sm ${index === 0 ? 'active' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}`;
-                    btn.innerText = res.name.replace(/_/g, ' ');
+                    btn.className = `tab-btn px-4 py-3 rounded-t-lg font-medium text-sm text-slate-600 hover:bg-slate-200 ${loadedCount === 1 ? 'active' : ''}`;
+                    btn.innerText = res.name.replace(/_/g, ' ').substring(0, 20) + (res.name.length > 20 ? '...' : '');
                     btn.onclick = () => switchTab(res.name, btn);
                     tabsContainer.appendChild(btn);
                 }
             });
 
             if(loadedCount > 0) {
-                document.getElementById('status').innerText = `${loadedCount} ta bo'linma yuklandi`;
+                document.getElementById('status').innerText = `${loadedCount} ta bo'linma faol`;
                 document.getElementById('status').classList.replace('bg-blue-50', 'bg-emerald-50');
                 document.getElementById('status').classList.replace('text-blue-700', 'text-emerald-700');
                 
-                // Birinchi mavjud tabni ochish
                 const firstSheetName = Object.keys(sheetsData)[0];
                 renderDashboardForSheet(firstSheetName);
             } else {
-                document.getElementById('status').innerText = 'Ma\'lumot topilmadi yoki Sheet ID xato';
+                document.getElementById('status').innerText = 'Ma\'lumot topilmadi! List nomlari yoki Ruxsatni tekshiring.';
                 document.getElementById('status').classList.replace('bg-blue-50', 'bg-red-50');
                 document.getElementById('status').classList.replace('text-blue-700', 'text-red-700');
             }
         }
 
         function switchTab(sheetName, clickedBtn) {
-            // Tugmalar dizaynini o'zgartirish
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.className = 'tab-btn px-4 py-2 rounded-lg border font-semibold text-sm bg-white text-slate-600 border-slate-300 hover:bg-slate-50';
-            });
-            clickedBtn.className = 'tab-btn px-4 py-2 rounded-lg border font-semibold text-sm active';
-            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            clickedBtn.classList.add('active');
             renderDashboardForSheet(sheetName);
         }
 
-        // --- AQLLI TAHLIL MANTIQI (Eng asosiy qism) ---
+        // --- HAR BIR LIST UCHUN TAHLIL VA GRAFIK YARATISH ALGORITMI ---
         function renderDashboardForSheet(sheetName) {
             const data = sheetsData[sheetName];
             if(!data || data.length === 0) return;
 
-            // Eski grafiklarni o'chirish (Memory leak bo'lmasligi uchun)
-            activeChartInstances.forEach(chart => chart.destroy());
-            activeChartInstances = [];
+            activeCharts.forEach(chart => chart.destroy());
+            activeCharts = [];
 
             const kpiContainer = document.getElementById('kpi-container');
             const chartsContainer = document.getElementById('charts-container');
             const analysisUl = document.getElementById('analysis-text');
             
-            kpiContainer.innerHTML = '';
-            chartsContainer.innerHTML = '';
-            analysisUl.innerHTML = '';
+            kpiContainer.innerHTML = ''; chartsContainer.innerHTML = ''; analysisUl.innerHTML = '';
 
-            // 1. Ustunlarni tahlil qilish (Matnli va Raqamli ustunlarni ajratish)
+            // Ustunlarni tahlil qilish (Matnli vs Raqamli)
             const headers = Object.keys(data[0]);
-            let labelCol = headers.find(h => isNaN(parseNum(data[0][h]))) || headers[0]; // Hudud/Tuman nomi
+            
+            // Hudud nomini topish (odatda matnli bo'ladi)
+            let labelCol = headers.find(h => isNaN(parseNum(data[0][h]))) || headers[0]; 
+            
+            // Faqat raqamli ustunlarni ajratib olish
             let numCols = headers.filter(h => h !== labelCol && !isNaN(parseNum(data[0][h])));
 
             let labels = [];
             let totals = {};
             numCols.forEach(col => totals[col] = 0);
 
-            // Ma'lumotlarni yig'ish
             data.forEach(row => {
-                labels.push(row[labelCol] || 'Noma\'lum');
-                numCols.forEach(col => {
-                    totals[col] += parseNum(row[col]);
-                });
+                let lbl = row[labelCol] ? row[labelCol].toString().trim() : 'Noma\'lum';
+                labels.push(lbl);
+                numCols.forEach(col => { totals[col] += parseNum(row[col]); });
             });
 
-            // 2. KPI Kartochkalarini chizish (Maksimum 6 ta eng muhim ustun)
-            const colors = ['blue', 'emerald', 'indigo', 'purple', 'rose', 'amber'];
+            // 1. KPI KARTOCHKALAR (Eng muhim 6 ta ko'rsatkich)
+            const cardColors = ['blue', 'emerald', 'indigo', 'purple', 'fuchsia', 'cyan'];
             numCols.slice(0, 6).forEach((col, idx) => {
-                let color = colors[idx % colors.length];
-                let isNegative = col.toLowerCase().includes('npl') || col.toLowerCase().includes('to\'xtat') || col.toLowerCase().includes('qarz');
-                if(isNegative) color = 'red';
-
-                let formattedTotal = totals[col] > 1000 ? totals[col].toLocaleString('uz-UZ') : totals[col].toFixed(1);
-
+                let val = totals[col];
+                let isWarning = col.toLowerCase().match(/npl|muammo|to'xta|qarz|muddat/);
+                let color = isWarning ? 'red' : cardColors[idx % cardColors.length];
+                
                 kpiContainer.innerHTML += `
-                    <div class="glass-card border-t-4 border-${color}-500 flex flex-col justify-between h-full">
-                        <h3 class="text-slate-500 text-xs font-bold uppercase mb-2" title="${col}">${col.replace(/_/g, ' ').substring(0, 40)}</h3>
-                        <p class="text-xl font-bold text-slate-800">${formattedTotal}</p>
-                    </div>
-                `;
+                    <div class="glass-card border-l-4 border-${color}-500 p-4">
+                        <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mb-1 truncate" title="${col}">${col.replace(/_/g, ' ')}</p>
+                        <p class="text-lg sm:text-xl font-black text-slate-800">${val > 1000 ? val.toLocaleString('uz-UZ') : val.toFixed(1)}</p>
+                    </div>`;
             });
 
-            // 3. Avtomatik Grafiklarni chizish
+            // 2. TEMATIK GRAFIKLAR (Barcha ehtimoliy holatlar uchun)
             if(numCols.length >= 1) {
-                // Chart 1: Bar Chart (Dastlabki 2 ta ustun solishtiruvi)
-                addChartCanvas('chart1', `Asosiy ko'rsatkichlar (${labelCol} kesimida)`);
-                let datasets1 = numCols.slice(0, 2).map((col, idx) => ({
+                // Bar Chart: Asosiy solishtiruv (1 yoki 2 ta ustun)
+                createCanvas('chart1', `Asosiy reyting: ${labelCol} kesimida`);
+                let datasets1 = numCols.slice(0, 2).map((col, i) => ({
                     label: col.replace(/_/g, ' '),
-                    data: data.map(row => parseNum(row[col])),
-                    backgroundColor: idx === 0 ? '#3b82f6' : '#10b981',
-                    borderRadius: 4
+                    data: data.map(r => parseNum(r[col])),
+                    backgroundColor: i === 0 ? '#3b82f6' : '#10b981',
+                    borderRadius: 3
                 }));
-                createChart('chart1', 'bar', labels, datasets1);
+                buildChart('chart1', 'bar', labels, datasets1);
             }
 
             if(numCols.length >= 3) {
-                // Chart 2: Mixed Chart (3-chi va 4-chi ustun)
-                addChartCanvas('chart2', `Qo'shimcha dinamika`);
+                // Combo Chart: 3-chi va 4-chi ko'rsatkichlar (Masalan Qoldiq va NPL)
+                createCanvas('chart2', `Qo'shimcha dinamika va xatarlar`);
                 let datasets2 = [
-                    { label: numCols[2].replace(/_/g, ' '), data: data.map(row => parseNum(row[numCols[2]])), backgroundColor: '#f59e0b' },
-                    { label: numCols[3] ? numCols[3].replace(/_/g, ' ') : 'Trend', data: data.map(row => numCols[3] ? parseNum(row[numCols[3]]) : parseNum(row[numCols[2]])*1.1), type: 'line', borderColor: '#6366f1' }
+                    { label: numCols[2].replace(/_/g, ' '), data: data.map(r => parseNum(r[numCols[2]])), type: 'bar', backgroundColor: '#8b5cf6', yAxisID: 'y' }
                 ];
-                createChart('chart2', 'bar', labels, datasets2);
+                if(numCols[3]) {
+                    datasets2.push({ label: numCols[3].replace(/_/g, ' '), data: data.map(r => parseNum(r[numCols[3]])), type: 'line', borderColor: '#f43f5e', borderWidth: 2, yAxisID: 'y1' });
+                }
+                buildChart('chart2', 'bar', labels, datasets2, { scales: { y: { position: 'left' }, y1: { position: 'right', display: !!numCols[3] } } });
             }
 
             if(numCols.length >= 1) {
-                // Chart 3: Doughnut Chart (Jami qiymatning taqsimoti)
-                addChartCanvas('chart3', `${numCols[0].replace(/_/g, ' ')} taqsimoti`);
-                let doughnutData = data.map(row => parseNum(row[numCols[0]]));
-                let bgColors = labels.map((_, i) => `hsl(${(i * 360) / labels.length}, 70%, 50%)`);
-                createChart('chart3', 'doughnut', labels, [{ data: doughnutData, backgroundColor: bgColors }], { cutout: '60%', indexAxis: 'x' });
+                // Doughnut Chart: Umumiy hajmdagi ulushlar (Faqat musbat miqdorlar uchun)
+                createCanvas('chart3', `${numCols[0].replace(/_/g, ' ')} bo'yicha ulushlar`);
+                let pData = data.map(r => Math.max(0, parseNum(r[numCols[0]])));
+                let colors = labels.map((_, i) => `hsl(${(i * 360) / labels.length}, 75%, 55%)`);
+                buildChart('chart3', 'doughnut', labels, [{ data: pData, backgroundColor: colors, borderWidth: 0 }], { cutout: '60%' });
             }
 
-            // 4. Avtomatlashtirilgan Xulosa yozish algoritmi (AI-like)
+            // 3. AQLLI XULOSA YARATISH (Har bir ustun bo'yicha "Qizil" va "Yashil" hududlarni topish)
             let summaryHTML = '';
-            numCols.slice(0, 4).forEach(col => {
+            let loopLimit = Math.min(numCols.length, 4); // Dastlabki 4 ta muhim ustunni tahlil qilamiz
+
+            for(let i=0; i<loopLimit; i++) {
+                let col = numCols[i];
                 let colNameClean = col.replace(/_/g, ' ');
-                let maxRow = data.reduce((max, row) => parseNum(row[col]) > parseNum(max[col]) ? row : max, data[0]);
-                let minRow = data.reduce((min, row) => parseNum(row[col]) < parseNum(min[col]) ? row : min, data[0]);
                 
-                let isNegativeMetric = col.toLowerCase().includes('npl') || col.toLowerCase().includes('muammo') || col.toLowerCase().includes('to\'xtat') || col.toLowerCase().includes('muddat');
+                // Ustundagi eng katta va eng kichik natijaga ega obyektlarni (qatorlarni) topamiz
+                let maxRow = data.reduce((prev, curr) => parseNum(curr[col]) > parseNum(prev[col]) ? curr : prev, data[0]);
+                let minRow = data.reduce((prev, curr) => parseNum(curr[col]) < parseNum(prev[col]) ? curr : prev, data[0]);
                 
                 let maxVal = parseNum(maxRow[col]).toLocaleString('uz-UZ');
                 
-                if (isNegativeMetric) {
+                let isRisk = col.toLowerCase().match(/npl|muammo|qarz|to'xtat|muddat/);
+
+                if (isRisk) {
+                    // Agar xatarli ko'rsatkich bo'lsa (NPL, Qarz) -> Eng ko'p bo'lgan hudud bu MUAMMO.
                     summaryHTML += `
-                        <li class="text-rose-400 bg-rose-900/20 p-2 rounded">
-                            <span class="font-bold text-rose-300">⚠️ XAVF (${colNameClean}):</span> Ushbu salbiy ko'rsatkich bo'yicha eng yomon holat <strong>${maxRow[labelCol]}</strong> hissasiga to'g'ri kelmoqda (Ko'rsatkich: ${maxVal}). 
-                            Ushbu manzilda moliyaviy-ijro intizomini jiddiy nazoratga olish va zudlik bilan muhokama qilish tavsiya etiladi.
+                        <li class="bg-rose-900/30 p-3 rounded-lg border-l-4 border-rose-500">
+                            <span class="font-bold text-rose-400 block mb-1">🔴 Diqqat talab qilinadigan xatar (${colNameClean}):</span>
+                            <strong>${maxRow[labelCol]}</strong> hududida ushbu salbiy ko'rsatkich eng yuqori nuqtaga (${maxVal}) yetgan. 
+                            <strong>Muhokama uchun masala:</strong> Ushbu ob'ektlarga joyiga chiqqan holda maqsadli ishchi guruh yuborilishi va garov ta'minoti qoplanishi bo'yicha qat'iy nazorat o'rnatilishi tavsiya etiladi.
                         </li>`;
                 } else {
+                    // Agar oddiy/ijobiy ko'rsatkich bo'lsa (Ajratilgan kredit, Loyiha soni)
                     summaryHTML += `
-                        <li class="p-2">
-                            <span class="font-bold text-emerald-400">📈 YETAKCHILIK (${colNameClean}):</span> Jami miqdorning eng katta qismi <strong>${maxRow[labelCol]}</strong> da qayd etilgan (${maxVal}). 
-                            Aksincha, <strong>${minRow[labelCol]}</strong> hududida bu ko'rsatkich eng past darajada. Bunga sabab bo'layotgan omillarni (infratuzilma yoki talab pastligi) chuqur tahlil qilish lozim.
+                        <li class="bg-slate-700/50 p-3 rounded-lg border-l-4 border-emerald-500">
+                            <span class="font-bold text-emerald-400 block mb-1">🟢 Yetakchi va qoloq hududlar (${colNameClean}):</span>
+                            Respublika bo'yicha jami qiymatning eng katta qismi <strong>${maxRow[labelCol]}</strong> (${maxVal}) hissasiga to'g'ri kelmoqda. 
+                            Aksincha, <strong>${minRow[labelCol]}</strong> da bu ko'rsatkich eng past. 
+                            <strong>Muhokama uchun masala:</strong> Qoloq hududlardagi sustkashlik byurokratik to'siqlarmi yoki talabgorlar yo'qligimi, sababini o'rganish lozim.
                         </li>`;
                 }
-            });
-
-            analysisUl.innerHTML = summaryHTML;
+            }
+            
+            // Xulosa bo'sh bo'lsa matn yozib qoyish
+            analysisUl.innerHTML = summaryHTML || "<li class='text-slate-400'>Ushbu list bo'yicha xulosa yaratish uchun raqamli ma'lumotlar yetarli emas.</li>";
         }
 
-        // Yordamchi funksiyalar (Grafik chizish uchun)
-        function addChartCanvas(id, title) {
-            const chartsContainer = document.getElementById('charts-container');
-            chartsContainer.innerHTML += `
+        // GRAFIK CHIZISH YORDAMCHI FUNKSIYALARI
+        function createCanvas(id, title) {
+            document.getElementById('charts-container').innerHTML += `
                 <div class="glass-card">
-                    <h2 class="text-base font-bold text-slate-700 mb-4 truncate" title="${title}">${title}</h2>
-                    <canvas id="${id}" height="180"></canvas>
-                </div>
-            `;
+                    <h2 class="text-sm font-bold text-slate-700 mb-4 pb-2 border-b border-slate-200 truncate" title="${title}">${title}</h2>
+                    <div class="relative h-[200px] w-full"><canvas id="${id}"></canvas></div>
+                </div>`;
         }
 
-        function createChart(id, type, labels, datasets, extraOptions = {}) {
-            const ctx = document.getElementById(id);
+        function buildChart(id, type, labels, datasets, extraOptions = {}) {
+            let ctx = document.getElementById(id);
             if(!ctx) return;
-            const chart = new Chart(ctx, {
+            let chart = new Chart(ctx, {
                 type: type,
                 data: { labels: labels, datasets: datasets },
-                options: { responsive: true, maintainAspectRatio: false, ...extraOptions }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: type === 'doughnut' ? 'right' : 'top', labels: { boxWidth: 10, font: {size: 10} } } },
+                    ...extraOptions 
+                }
             });
-            activeChartInstances.push(chart);
+            activeCharts.push(chart);
         }
 
     </script>
