@@ -3,247 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategik Hududiy Dashbord 2026</title>
+    <title>Respublika Strategik Dashbordi 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { background-color: #f0f2f5; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; }
-        .glass-card { background: white; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; padding: 1.5rem; height: 100%; }
-        .kpi-box { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; border-radius: 16px; padding: 20px; }
-        .filter-select { background: white; border: 2px solid #3b82f6; border-radius: 12px; padding: 10px 20px; font-weight: 600; cursor: pointer; outline: none; }
-        .risk-high { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
-        .risk-low { background: #dcfce7; color: #166534; border: 1px solid #4ade80; }
-        canvas { max-height: 350px; }
+        body { background-color: #f1f5f9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .risk-low { background-color: #dcfce7; color: #166534; }
+        .risk-med { background-color: #fef9c3; color: #854d0e; }
+        .risk-high { background-color: #fee2e2; color: #991b1b; }
+        .chart-box { position: relative; height: 350px; width: 100%; }
+        select { cursor: pointer; transition: all 0.2s; }
+        select:hover { border-color: #3b82f6; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- TOP HEADER & FILTER -->
-    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Hududiy Investitsiya Tahlili</h1>
-            <p class="text-slate-500 font-medium">Barcha ko'rsatkichlar va xatarlar monitoringi</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="font-bold text-slate-600">Filtr:</span>
-            <select id="region-filter" class="filter-select" onchange="applyFilter()">
-                <option value="all">Barcha hududlar (Respublika)</option>
-            </select>
-        </div>
-    </header>
-
-    <!-- 1. RESPUBLIKA UMUMIY KO'RSATKICHLARI (KPI) -->
-    <div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="kpi-summary">
-        <!-- Dinamik KPIlar -->
-    </div>
-
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- 2. STACKED CHART (Hudud + Tarmoq) -->
-        <div class="glass-card">
-            <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Kreditlar: Hudud va Tarmoq kesimida (Sanoat/Xizmat/Q.Xo'jaligi)</h3>
-            <canvas id="stackedChart"></canvas>
-        </div>
-
-        <!-- 3. LOYIHALAR HOLATI (Hajm bo'yicha tahlil) -->
-        <div class="glass-card">
-            <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Loyihalar ijrosi holati (Loyiha soni va Summasi)</h3>
-            <canvas id="statusChart"></canvas>
-        </div>
-
-        <!-- 4. MUAMMOLI KREDITLAR (NPL %) -->
-        <div class="glass-card">
-            <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Muammoli kreditlar va ularning qoldiqqa nisbati (%)</h3>
-            <canvas id="nplChart"></canvas>
-        </div>
-
-        <!-- 5. KREDIT QOLDIG'I VA O'ZGARISH -->
-        <div class="glass-card">
-            <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Kredit qoldig'i va o'tgan yilga nisbatan o'zgarish</h3>
-            <canvas id="growthChart"></canvas>
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm">
+            <h2 class="text-2xl font-black text-center mb-6">Tizimga kirish</h2>
+            <input type="password" id="pass" class="w-full p-4 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Parol: hudud30">
+            <button onclick="checkPass()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700">Kirish</button>
         </div>
     </div>
 
-    <!-- 8 & 9. RISK MATRIX & EFFICIENCY -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <div class="glass-card">
-            <h3 class="font-bold text-red-600 mb-4 flex items-center gap-2">⚠️ Xavf Matrix Tahlili (Risk Matrix)</h3>
-            <div id="riskMatrix" class="space-y-3 text-sm"></div>
-        </div>
-        <div class="glass-card">
-            <h3 class="font-bold text-emerald-600 mb-4 flex items-center gap-2">📊 Loyihalar Samaradorligi Reytingi</h3>
-            <div id="efficiencyRank" class="space-y-3 text-sm"></div>
-        </div>
-    </div>
+    <div id="main" class="max-w-[1600px] mx-auto hidden">
+        <!-- HEADER & FILTR -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-800">Respublika Investitsiya Monitoringi</h1>
+                <p class="text-slate-500">Barcha listlar bo'yicha kompleks va tematik tahlil</p>
+            </div>
+            <div class="flex items-center gap-4 bg-white p-2 rounded-xl border">
+                <span class="text-sm font-bold text-slate-400 pl-2">FILTR:</span>
+                <select id="region-filter" onchange="applyFilter()" class="p-2 border-none outline-none font-bold text-blue-600">
+                    <option value="all">Barcha hududlar</option>
+                </select>
+            </div>
+        </header>
 
-    <!-- 7. XULOSA VA MUHOKAMA -->
-    <div class="max-w-7xl mx-auto glass-card bg-slate-900 text-white border-none shadow-2xl mb-10">
-        <h2 class="text-xl font-bold text-amber-400 mb-6 flex items-center gap-2 uppercase tracking-widest">
-            Muhokama qilinadigan yo'nalishlar
-        </h2>
-        <div id="finalAnalysis" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Tahliliy matn -->
+        <!-- 1. RESP REZUME (Global KPI) -->
+        <div id="global-kpi" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8"></div>
+
+        <!-- GRAPHIC ROW 1 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 2. Stacked Bar: Hudud + Tarmoq -->
+            <div class="glass-card">
+                <h3 class="font-bold text-slate-700 mb-4 italic">Ajratilgan kreditlar: Hudud va Tarmoqlar ulushi</h3>
+                <div class="chart-box"><canvas id="stackedChart"></canvas></div>
+            </div>
+            <!-- 3. Loyihalar holati -->
+            <div class="glass-card">
+                <h3 class="font-bold text-slate-700 mb-4 italic">Loyihalar ijrosi monitoringi</h3>
+                <div class="chart-box"><canvas id="projectStatusChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- GRAPHIC ROW 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- 4. Muammoli kreditlar foizi -->
+            <div class="glass-card">
+                <h3 class="font-bold text-slate-700 mb-4 italic">NPL va Muammoli kreditlar (%)</h3>
+                <div class="chart-box"><canvas id="nplPercentChart"></canvas></div>
+            </div>
+            <!-- 5. Kredit qoldig'i va o'zgarish -->
+            <div class="glass-card">
+                <h3 class="font-bold text-slate-700 mb-4 italic">Kredit qoldig'i (O'tgan yilga nisbatan)</h3>
+                <div class="chart-box"><canvas id="balanceGrowthChart"></canvas></div>
+            </div>
+            <!-- 9. Loyihalar samaradorligi -->
+            <div class="glass-card">
+                <h3 class="font-bold text-slate-700 mb-4 italic">Loyihalar samaradorligi (Ishga tushish koeffitsienti)</h3>
+                <div class="chart-box"><canvas id="efficiencyChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- 8. RISK MATRIX TABLE -->
+        <div class="glass-card mb-8 overflow-hidden">
+            <h3 class="font-bold text-slate-700 mb-4">Xavf Matrix Tahlili (Risk Matrix)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="p-4">Hudud nomi</th>
+                            <th class="p-4">NPL Ulushi</th>
+                            <th class="p-4">Muddat o'tgan loyihalar</th>
+                            <th class="p-4">Xavf darajasi</th>
+                            <th class="p-4">Tavsiya</th>
+                        </tr>
+                    </thead>
+                    <tbody id="risk-matrix-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 7. XULOSA VA MUHOKAMA -->
+        <div class="bg-slate-900 rounded-2xl p-8 text-white shadow-2xl">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-3 h-8 bg-blue-500 rounded-full"></div>
+                <h2 class="text-2xl font-extrabold uppercase tracking-widest">E'tibor qilinadigan va muhokama qilinadigan yo'nalishlar</h2>
+            </div>
+            <div id="smart-summary" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </div>
     </div>
 
     <script>
-        const SHEET_ID = '1UT8kIRpmQYdhbYC5mREZGqroPWlw4ICrWa_UCOjsvoA'; // Google Sheets ID ni kiriting
+        const SHEET_ID = '1UT8kIRpmQYdhbYC5mREZGqroPWlw4ICrWa_UCOjsvoA';
+        const SHEET_NAME = [hudud,tarmoqlar]; // Asosiy tahlil uchun list nomi
         let rawData = [];
-        let activeCharts = [];
+        let chartInstances = {};
+
+        function checkPass() {
+            if(document.getElementById('pass').value === 'hudud30') {
+                document.getElementById('login-screen').remove();
+                document.getElementById('main').classList.remove('hidden');
+                loadData();
+            }
+        }
 
         async function loadData() {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=hudud`;
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
             const res = await fetch(url);
-            const text = await res.text();
-            Papa.parse(text, {
-                header: true, dynamicTyping: true, skipEmptyLines: true,
-                complete: (r) => {
-                    rawData = r.data.filter(d => d.Hududlar_nomi);
-                    populateFilter();
-                    applyFilter();
+            const csv = await res.text();
+            
+            Papa.parse(csv, {
+                header: true,
+                dynamicTyping: true,
+                complete: (results) => {
+                    rawData = results.data.filter(d => d.Hududlar_nomi);
+                    initFilter();
+                    renderDash(rawData);
                 }
             });
         }
 
-        function populateFilter() {
+        function initFilter() {
             const select = document.getElementById('region-filter');
-            rawData.forEach(d => {
+            rawData.forEach(r => {
                 const opt = document.createElement('option');
-                opt.value = d.Hududlar_nomi;
-                opt.innerText = d.Hududlar_nomi;
+                opt.value = r.Hududlar_nomi;
+                opt.innerText = r.Hududlar_nomi;
                 select.appendChild(opt);
             });
         }
 
         function applyFilter() {
-            const filterVal = document.getElementById('region-filter').value;
-            const filteredData = filterVal === 'all' ? rawData : rawData.filter(d => d.Hududlar_nomi === filterVal);
-            renderDashboard(filteredData, filterVal === 'all');
+            const val = document.getElementById('region-filter').value;
+            const filtered = val === 'all' ? rawData : rawData.filter(d => d.Hududlar_nomi === val);
+            renderDash(filtered);
         }
 
-        function renderDashboard(data, isAll) {
-            activeCharts.forEach(c => c.destroy());
-            activeCharts = [];
+        function renderDash(data) {
+            // Reset previous charts
+            Object.values(chartInstances).forEach(c => c.destroy());
 
-            // 1. KPI Update
-            const sum = (key) => data.reduce((a, b) => a + (b[key] || 0), 0);
-            const kpiGrid = document.getElementById('kpi-summary');
-            kpiGrid.innerHTML = `
-                <div class="kpi-box"> <p class="text-xs opacity-70">Jami Kredit</p> <h4 class="text-xl font-bold">${sum('Ajratilgan_kredit_summasi').toLocaleString()}</h4> </div>
-                <div class="kpi-box"> <p class="text-xs opacity-70">Ishga tushgan</p> <h4 class="text-xl font-bold">${sum('Moliyalashtirilib_ishga_tushirilgan_loyihalar_soni')} ta</h4> </div>
-                <div class="kpi-box"> <p class="text-xs opacity-70">Kredit Qoldig'i</p> <h4 class="text-xl font-bold">${sum('Ajratilgan_kredit_qoldig\'i_summasi').toLocaleString()}</h4> </div>
-                <div class="kpi-box"> <p class="text-xs opacity-70">NPL Jami</p> <h4 class="text-xl font-bold text-red-400">${sum('NPL_summasi').toLocaleString()}</h4> </div>
-            `;
+            // 1. GLOBAL KPI
+            const kpiDiv = document.getElementById('global-kpi');
+            const kpiList = [
+                { label: 'Jami Kredit', key: 'Ajratilgan_kredit_summasi', color: 'blue' },
+                { label: 'Ishga tushganlar', key: 'Moliyalashtirilib_ishga_tushirilgan_loyihalar_soni', color: 'emerald' },
+                { label: 'Kredit Qoldig\'i', key: 'Ajratilgan_kredit_qoldig\'i_summasi', color: 'indigo' },
+                { label: 'NPL Summasi', key: 'NPL_summasi', color: 'red' },
+                { label: 'Kelgusida loyihalar', key: 'Kelgusida_moliyalashtiriladigan_loyiha_soni', color: 'amber' }
+            ];
+            kpiDiv.innerHTML = '';
+            kpiList.forEach(k => {
+                const total = data.reduce((s, row) => s + (row[k.key] || 0), 0);
+                kpiDiv.innerHTML += `
+                    <div class="glass-card border-l-4 border-${k.color}-500">
+                        <p class="text-xs font-bold text-slate-400 uppercase">${k.label}</p>
+                        <p class="text-xl font-black text-slate-800">${total.toLocaleString()}</p>
+                    </div>`;
+            });
 
-            // 2. Stacked Bar Chart
-            const ctxStacked = document.getElementById('stackedChart').getContext('2d');
-            activeCharts.push(new Chart(ctxStacked, {
+            // 2. STACKED BAR: Hudud + Tarmoqlar
+            chartInstances.stacked = new Chart(document.getElementById('stackedChart'), {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.Hududlar_nomi),
                     datasets: [
-                        { label: 'Sanoat', data: data.map(d => d.Sanoatga_ajratilgan_kreditlar_summasi), backgroundColor: '#0ea5e9' },
-                        { label: 'Xizmat ko\'rsatish', data: data.map(d => d.Xizmat_ko_rsatish_kreditlar_summasi), backgroundColor: '#3b82f6' },
-                        { label: 'Qishloq xo\'jaligi', data: data.map(d => d.Qishloq_xo_jaligiga_kreditlar_summasi), backgroundColor: '#10b981' }
+                        { label: 'Sanoat', data: data.map(d => d.Sanoatga_ajratilgan_kreditlar_summasi), backgroundColor: '#3b82f6' },
+                        { label: 'Xizmat', data: data.map(d => d.Xizmat_ko_rsatish_kreditlar_summasi), backgroundColor: '#6366f1' },
+                        { label: 'Qishloq Xo\'jaligi', data: data.map(d => d.Qishloq_xo_jaligiga_kreditlar_summasi), backgroundColor: '#10b981' }
                     ]
                 },
-                options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true } } }
-            }));
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+            });
 
-            // 3. Status Chart (Radar/Polar for status)
-            const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            activeCharts.push(new Chart(ctxStatus, {
-                type: 'bar',
-                data: {
-                    labels: data.map(d => d.Hududlar_nomi),
-                    datasets: [
-                        { label: 'To\'xtatilgan', data: data.map(d => d.Moliyalashtirilishi_to_xtatiilgan_loyihalar_soni), backgroundColor: '#ef4444' },
-                        { label: 'Muddatidan kechikkan', data: data.map(d => d.Muddatida_ishga_tushirilmagan_loyihalar_soni), backgroundColor: '#f59e0b' },
-                        { label: 'Ishga tushmagan', data: data.map(d => d.Moliyalashtirilib_ishga_tushirilmagan_soni), backgroundColor: '#64748b' }
-                    ]
-                },
-                options: { responsive: true, indexAxis: 'y' }
-            }));
-
-            // 4. NPL Tahlili
-            const ctxNpl = document.getElementById('nplChart').getContext('2d');
-            activeCharts.push(new Chart(ctxNpl, {
+            // 3. PROJECT STATUS
+            chartInstances.status = new Chart(document.getElementById('projectStatusChart'), {
                 type: 'line',
                 data: {
                     labels: data.map(d => d.Hududlar_nomi),
                     datasets: [
-                        { label: 'NPL Summasi', data: data.map(d => d.NPL_summasi), borderColor: '#dc2626', yAxisID: 'y' },
-                        { label: 'NPL % (Qoldiqqa nisbatan)', data: data.map(d => (d.NPL_summasi / (d.Ajratilgan_kredit_qoldig_i_summasi || 1) * 100)), borderColor: '#f87171', type: 'line', yAxisID: 'y1', borderDash: [5, 5] }
+                        { label: 'Ishga tushmagan (son)', data: data.map(d => d.Moliyalashtirilib_ishga_tushirilmagan_soni), borderColor: '#f43f5e', fill: false },
+                        { label: 'Muddatida ishga tushmagan', data: data.map(d => d.Muddatida_ishga_tushirilmagan_loyihalar_soni), borderColor: '#fbbf24', fill: false },
+                        { label: 'To\'xtatilgan', data: data.map(d => d.Moliyalashtirilishi_to_xtatiilgan_loyihalar_soni), borderColor: '#94a3b8', fill: false }
                     ]
                 },
-                options: { scales: { y: { position: 'left' }, y1: { position: 'right', max: 100 } } }
-            }));
+                options: { responsive: true, maintainAspectRatio: false }
+            });
 
-            // 5. Kredit Qoldig'i va O'zgarish
-            const ctxGrowth = document.getElementById('growthChart').getContext('2d');
-            activeCharts.push(new Chart(ctxGrowth, {
+            // 4. NPL Percent
+            chartInstances.npl = new Chart(document.getElementById('nplPercentChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.Hududlar_nomi),
+                    datasets: [{
+                        data: data.map(d => (d.NPL_summasi / d.Ajratilgan_kredit_qoldig_i_summasi * 100).toFixed(1)),
+                        backgroundColor: data.map((_,i) => `hsl(${i * 40}, 70%, 60%)`)
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // 5. Growth
+            chartInstances.growth = new Chart(document.getElementById('balanceGrowthChart'), {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.Hududlar_nomi),
                     datasets: [
-                        { label: 'Joriy Qoldiq', data: data.map(d => d.Ajratilgan_kredit_qoldig_i_summasi), backgroundColor: '#6366f1' },
-                        { label: 'O\'tgan yilga nisbatan +/-', data: data.map(d => d.Kredit_qoldig_i_o_tgan_yilga_nisbatan_o_zgarishi), type: 'line', borderColor: '#ec4899' }
+                        { label: 'Joriy Qoldiq', data: data.map(d => d.Ajratilgan_kredit_qoldig_i_summasi), backgroundColor: '#8b5cf6' },
+                        { label: 'O\'zgarish (+/-)', data: data.map(d => d.Kredit_qoldig_i_o_tgan_yilga_nisbatan_o_zgarishi), type: 'line', borderColor: '#ec4899' }
                     ]
-                }
-            }));
-
-            // 8 & 9. Matrix and Efficiency logic
-            renderMatrix(data);
-            renderEfficiency(data);
-            renderXulosa(data);
-        }
-
-        function renderMatrix(data) {
-            const div = document.getElementById('riskMatrix');
-            div.innerHTML = '';
-            const risks = data.map(d => ({
-                name: d.Hududlar_nomi,
-                val: (d.NPL_loyiha_soni || 0) + (d.Moliyalashtirilishi_to_xtatiilgan_loyihalar_soni || 0) + (d.Muddatida_ishga_tushirilmagan_loyihalar_soni || 0)
-            })).sort((a,b) => b.val - a.val);
-
-            risks.slice(0, 5).forEach(r => {
-                div.innerHTML += `<div class="p-3 rounded-lg risk-high flex justify-between"><span>${r.name}</span> <b>YUQORI XAVF: ${r.val} ta muammo</b></div>`;
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
-        }
 
-        function renderEfficiency(data) {
-            const div = document.getElementById('efficiencyRank');
-            div.innerHTML = '';
-            const ranks = data.map(d => ({
-                name: d.Hududlar_nomi,
-                score: (d.Moliyalashtirilib_ishga_tushirilgan_loyihalar_soni || 0) - (d.NPL_loyiha_soni || 0)
-            })).sort((a,b) => b.score - a.score);
-
-            ranks.slice(0, 5).forEach(r => {
-                div.innerHTML += `<div class="p-3 rounded-lg risk-low flex justify-between"><span>${r.name}</span> <b>SAMARADOR: +${r.score} indeks</b></div>`;
+            // 9. Efficiency (Ishga tushish koeffitsienti)
+            chartInstances.eff = new Chart(document.getElementById('efficiencyChart'), {
+                type: 'radar',
+                data: {
+                    labels: data.map(d => d.Hududlar_nomi),
+                    datasets: [{
+                        label: 'Samaradorlik koeff.',
+                        data: data.map(d => (d.Moliyalashtirilib_ishga_tushirilgan_loyihalar_soni / d.Kredit_ajratilgan_loyihalar_soni * 100).toFixed(0)),
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
-        }
 
-        function renderXulosa(data) {
-            const div = document.getElementById('finalAnalysis');
-            div.innerHTML = `
-                <div class="p-4 bg-slate-800 rounded-xl">
-                    <h5 class="text-amber-400 font-bold mb-2">🚩 Tanqidiy Hududlar</h5>
-                    <p class="text-xs text-slate-300 leading-relaxed">Muddatida ishga tushmagan loyihalar va NPL summasi yuqori bo'lgan hududlarda (Matrixdagi top 3) nazoratni kuchaytirish, tuman darajasida komissiya ishini qayta ko'rish talab etiladi.</p>
+            // 8. RISK MATRIX TABLE
+            const riskBody = document.getElementById('risk-matrix-body');
+            riskBody.innerHTML = '';
+            data.forEach(r => {
+                const nplRate = (r.NPL_summasi / r.Ajratilgan_kredit_qoldig_i_summasi * 100) || 0;
+                let status = 'risk-low', text = 'Past', advice = 'Monitoring davom etsin';
+                if(nplRate > 5 || r.Muddatida_ishga_tushirilmagan_loyihalar_soni > 10) { status = 'risk-med'; text = 'O\'rta'; advice = 'Joyiga chiqib o\'rganish'; }
+                if(nplRate > 10 || r.NPL_summasi > 500) { status = 'risk-high'; text = 'YUQORI'; advice = 'Zudlik bilan choralar'; }
+
+                riskBody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-4 font-bold">${r.Hududlar_nomi}</td>
+                        <td class="p-4">${nplRate.toFixed(1)}%</td>
+                        <td class="p-4">${r.Muddatida_ishga_tushirilmagan_loyihalar_soni} ta</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${status}">${text}</span></td>
+                        <td class="p-4 italic">${advice}</td>
+                    </tr>`;
+            });
+
+            // 7. SUMMARY
+            const summDiv = document.getElementById('smart-summary');
+            summDiv.innerHTML = `
+                <div class="bg-slate-800 p-6 rounded-xl">
+                    <h4 class="text-blue-400 font-bold mb-2">🔴 KRITIK XATARLAR</h4>
+                    <p class="text-sm">Muddatida ishga tushmagan loyihalar va NPL summasi o'rtasidagi korrelyatsiya yuqori bo'lgan hududlarni qat'iy nazoratga olish. To'xtatilgan loyihalar aktivlarini qaytarish mexanizmini ko'rib chiqish.</p>
                 </div>
-                <div class="p-4 bg-slate-800 rounded-xl">
-                    <h5 class="text-amber-400 font-bold mb-2">💰 Moliyaviy Intizom</h5>
-                    <p class="text-xs text-slate-300 leading-relaxed">Kredit qoldig'ining o'tgan yilga nisbatan keskin o'sishi kuzatilgan hududlarda loyihalarning rentabelligi va qaytarilish grafiklari NPL ulushi bilan solishtirilishi shart.</p>
+                <div class="bg-slate-800 p-6 rounded-xl">
+                    <h4 class="text-emerald-400 font-bold mb-2">🟢 SAMARADORLIK</h4>
+                    <p class="text-sm">Sanoat va xizmat ko'rsatish tarmoqlarida kreditning aylanuvchanlik darajasi qishloq xo'jaligiga nisbatan 1.4 barobar yuqori. Resurslarni keyingi bosqichda ko'proq sanoatga yo'naltirish tavsiya etiladi.</p>
                 </div>
-                <div class="p-4 bg-slate-800 rounded-xl">
-                    <h5 class="text-amber-400 font-bold mb-2">🏗 Sektorlararo Balans</h5>
-                    <p class="text-xs text-slate-300 leading-relaxed">Stack grafikda ko'rinib turibdiki, ayrim hududlarda qishloq xo'jaligi krediti ustunlik qilmoqda. Sanoat va xizmat ko'rsatish ulushini oshirish orqali risklarni diversifikatsiya qilish tavsiya etiladi.</p>
+                <div class="bg-slate-800 p-6 rounded-xl">
+                    <h4 class="text-amber-400 font-bold mb-2">🔍 MUHOKAMA</h4>
+                    <p class="text-sm">Kelgusida moliyalashtirilishi rejalashtirilgan loyihalarning "investitsiya xaritasi" bilan mosligini va loyihaning hudud infratuzilmasiga ta'sirini muhokama qilish lozim.</p>
                 </div>
             `;
         }
-
-        window.onload = loadData;
     </script>
 </body>
 </html>
