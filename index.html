@@ -3,315 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-List Aqlli Dashbord</title>
+    <title>Investitsiya 2026: Strategik Dashbord</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .glass-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 20px; border: 1px solid #e2e8f0; }
-        #login-screen { position: fixed; inset: 0; background: rgba(15,23,42,0.95); z-index: 50; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
-        .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #1d4ed8; background: #eff6ff; font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background-color: #f3f4f6; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: white; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; padding: 24px; transition: transform 0.2s; }
+        .glass-card:hover { transform: translateY(-2px); }
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+        .tab-btn.active { color: #2563eb; background: #eff6ff; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #2563eb; border-radius: 3px; }
+        #login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .status-badge { padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; border: 1px solid currentColor; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Tizimga kirish</h2>
-            <p class="text-gray-500 text-sm mb-6">Dashbordni ochish uchun parolni kiriting</p>
-            <input type="password" id="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-4" placeholder="Parol (hudud30)" onkeypress="if(event.key === 'Enter') checkPassword()">
-            <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Kirish</button>
-            <p id="error-msg" class="text-red-500 text-sm mt-3 hidden">Parol noto'g'ri!</p>
+        <div class="bg-white p-10 rounded-2xl shadow-2xl max-w-sm w-full">
+            <div class="mb-6 text-center">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-800">Tizimga kirish</h2>
+                <p class="text-slate-500 mt-2 text-sm">"dastur2026" tahliliy tizimi</p>
+            </div>
+            <input type="password" id="password" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 outline-none mb-4 transition-all" placeholder="Parol (hudud30)" onkeypress="if(event.key === 'Enter') checkPassword()">
+            <button onclick="checkPassword()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-blue-200 transition-all">Ma'lumotlarni yuklash</button>
+            <p id="error-msg" class="text-red-500 text-xs mt-4 hidden text-center">❌ Xato parol! Qayta urinib ko'ring.</p>
         </div>
     </div>
 
     <!-- MAIN DASHBOARD -->
-    <div id="dashboard-content" class="max-w-7xl mx-auto hidden opacity-0 transition-opacity duration-500">
+    <div id="dashboard-content" class="max-w-7xl mx-auto hidden opacity-0 transition-opacity duration-700">
         
-        <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800">Kompleks Investitsiya Dashbordi</h1>
-                <p class="text-slate-500 mt-1">Barcha bo'linmalar (listlar) bo'yicha aqlli tahlil</p>
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="status-badge text-blue-600 bg-blue-50">2026 Strategik Reja</span>
+                    <span id="update-time" class="text-xs text-slate-400 font-medium"></span>
+                </div>
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Investitsiya Dashbordi</h1>
+                <p class="text-slate-500 text-lg mt-1 font-medium">Monitoring va ehtimoliy xatarlar tahlili</p>
             </div>
-            <div class="text-sm bg-blue-50 text-blue-700 py-2 px-4 rounded-lg font-semibold border border-blue-200" id="status">
-                Ma'lumotlar ulanmoqda...
+            <div id="status-box" class="flex items-center gap-3 bg-white p-2 pr-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"/></svg>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase font-bold text-slate-400 leading-none">Baza holati</p>
+                    <p id="status-text" class="text-sm font-bold text-slate-700">Yuklanmoqda...</p>
+                </div>
             </div>
         </header>
 
-        <!-- BO'LINMALAR (TABS) -->
-        <div id="tabs-container" class="flex flex-wrap gap-2 mb-6 border-b border-slate-300 pb-0">
-            <!-- Dinamik tarzda shu yerda tugmalar hosil bo'ladi -->
+        <!-- NAVIGATION TABS -->
+        <div id="tabs-container" class="flex gap-1 mb-8 overflow-x-auto pb-2 scrollbar-hide border-b border-slate-200">
+            <!-- Tabs will be injected here -->
         </div>
 
-        <!-- TAHLIL OYNASI -->
-        <div id="sheet-view">
-            <!-- KPI -->
-            <div id="kpi-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"></div>
+        <div id="main-view">
+            <!-- KPI GRID -->
+            <div id="kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"></div>
             
-            <!-- GRAFIKLAR -->
-            <div id="charts-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+            <!-- CHARTS GRID -->
+            <div id="charts-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10"></div>
 
-            <!-- XULOSA QISMI -->
-            <div class="glass-card bg-slate-800 text-white border-none mt-4">
-                <h2 class="text-lg font-bold text-amber-400 mb-3 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Tahlil xulosasi va muhokama uchun yo'nalishlar
-                </h2>
-                <ul id="analysis-text" class="list-disc pl-5 space-y-4 text-slate-200 text-sm leading-relaxed">
-                    <!-- Aqlli xulosa shu yerga tushadi -->
-                </ul>
+            <!-- SMART ANALYSIS BLOCK -->
+            <div class="glass-card bg-slate-900 border-none relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                    <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1a1 1 0 112 0v1a1 1 0 11-2 0zM13.464 15.05a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707zM19.121 19.121a1 1 0 01-1.414 0l-4.243-4.243a1 1 0 011.414-1.414l4.243 4.243a1 1 0 010 1.414z"/></svg>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-2 h-8 bg-amber-400 rounded-full"></div>
+                        <h2 class="text-xl font-bold text-white uppercase tracking-wider">Tahliliy xulosa va tavsiyalar</h2>
+                    </div>
+                    <div id="analysis-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- AI Analysis injected here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // =========================================================================
-        // 1. DIQQAT: SHU YERNI O'Z FAYLINGIZGA MOSLAB O'ZGARTIRING
-        // =========================================================================
-        const SHEET_ID = '1UT8kIRpmQYdhbYC5mREZGqroPWlw4ICrWa_UCOjsvoA';
-        
-        // Listlar nomini harfma-harf xato qilmasdan yozing:
-        const SHEET_NAMES = [
-            'hudud', 
-            'tarmoqlar', 
-          
-        ];
-        // =========================================================================
-
-        let sheetsData = {};
-        let activeCharts = [];
+        const SHEET_ID = '1UT8kIRpmQYdhbYC5mREZGqroPWlw4ICrWa_UCOjsvoA'; // O'zgartirishni unutmang
+        const SHEET_NAMES = ['hudud', 'tarmoqlar'];
+        let globalData = {};
+        let chartInstances = [];
 
         function checkPassword() {
             if(document.getElementById('password').value === 'hudud30') {
-                document.getElementById('login-screen').style.display = 'none';
-                const dashboard = document.getElementById('dashboard-content');
-                dashboard.classList.remove('hidden');
-                setTimeout(() => dashboard.style.opacity = '1', 50);
-                loadAllSheets();
+                document.getElementById('login-screen').classList.add('hidden');
+                const content = document.getElementById('dashboard-content');
+                content.classList.remove('hidden');
+                setTimeout(() => content.style.opacity = '1', 100);
+                document.getElementById('update-time').innerText = "Yangilangan: " + new Date().toLocaleString('uz-UZ');
+                loadData();
             } else {
                 document.getElementById('error-msg').classList.remove('hidden');
             }
         }
 
-        // Raqamlarni tozalab (probel, harflar, vergullardan) sof songa aylantirish
-        const parseNum = (val) => {
-            if(!val) return 0;
-            if(typeof val === 'number') return val;
-            let cleaned = val.toString().replace(/\s/g, '').replace(',', '.').replace(/[^\d.-]/g, "");
-            let num = parseFloat(cleaned);
-            return isNaN(num) ? 0 : num;
-        };
+        async function loadData() {
+            const tabsContainer = document.getElementById('tabs-container');
+            let first = true;
 
-        // Bitta listni Google Sheets dan tortib olish
-        function fetchSheetData(sheetName) {
-            return new Promise((resolve) => {
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-                Papa.parse(url, {
-                    download: true,
+            for(const name of SHEET_NAMES) {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`;
+                const response = await fetch(url);
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
                     header: true,
-                    complete: function(results) {
-                        let validData = results.data.filter(row => Object.values(row).join('').trim() !== ''); // Bo'sh qatorlarni tashlab yuborish
-                        resolve({ name: sheetName, data: validData });
-                    },
-                    error: function() {
-                        resolve({ name: sheetName, data: [], error: true });
+                    dynamicTyping: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        globalData[name] = results.data;
+                        
+                        const btn = document.createElement('button');
+                        btn.className = `tab-btn px-8 py-4 text-sm font-bold uppercase tracking-widest whitespace-nowrap ${first ? 'active' : 'text-slate-400 hover:text-slate-600'}`;
+                        btn.innerText = name === 'hudud' ? '📍 Hududlar kesimi' : '🏗 Tarmoqlar tahlili';
+                        btn.onclick = (e) => {
+                            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-slate-900'));
+                            btn.classList.add('active');
+                            renderView(name);
+                        };
+                        tabsContainer.appendChild(btn);
+
+                        if(first) { renderView(name); first = false; }
+                        document.getElementById('status-text').innerText = "Ma'lumotlar faol";
                     }
                 });
+            }
+        }
+
+        function renderView(sheetName) {
+            const data = globalData[sheetName];
+            const kpiGrid = document.getElementById('kpi-grid');
+            const chartsGrid = document.getElementById('charts-grid');
+            const analysisGrid = document.getElementById('analysis-content');
+            
+            // Clear previous
+            kpiGrid.innerHTML = ''; chartsGrid.innerHTML = ''; analysisGrid.innerHTML = '';
+            chartInstances.forEach(c => c.destroy());
+            chartInstances = [];
+
+            const labelKey = Object.keys(data[0])[0];
+            const numKeys = Object.keys(data[0]).filter(k => typeof data[0][k] === 'number');
+
+            // 1. KPI Cards
+            const topKPIs = numKeys.slice(0, 4);
+            topKPIs.forEach((key, i) => {
+                const total = data.reduce((sum, row) => sum + (row[key] || 0), 0);
+                const colorClass = key.toLowerCase().includes('npl') || key.toLowerCase().includes('muammo') ? 'text-red-600' : 'text-blue-600';
+                kpiGrid.innerHTML += `
+                    <div class="glass-card border-b-4 ${i%2===0 ? 'border-blue-500' : 'border-indigo-500'}">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-tighter">${key.replace(/_/g, ' ')}</p>
+                        <p class="text-2xl font-black text-slate-800">${total.toLocaleString('uz-UZ')}</p>
+                    </div>
+                `;
+            });
+
+            // 2. Charts
+            createChartBlock(chartsGrid, 'bar', 'Asosiy ko\'rsatkichlar reytingi', data, labelKey, numKeys.slice(0, 2));
+            createChartBlock(chartsGrid, 'line', 'Xatarlar dinamikasi (NPL va Muammolar)', data, labelKey, numKeys.filter(k => k.toLowerCase().includes('npl') || k.toLowerCase().includes('muammo')));
+
+            // 3. Smart Analysis
+            numKeys.slice(0, 6).forEach(key => {
+                const sorted = [...data].sort((a, b) => (b[key]||0) - (a[key]||0));
+                const top = sorted[0];
+                const isNegative = key.toLowerCase().includes('npl') || key.toLowerCase().includes('muammo') || key.toLowerCase().includes('ishga_tushirilmagan');
+                
+                analysisGrid.innerHTML += `
+                    <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-2 h-2 rounded-full ${isNegative ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'}"></span>
+                            <h4 class="text-slate-300 font-bold text-xs uppercase">${key.replace(/_/g, ' ')}</h4>
+                        </div>
+                        <p class="text-white text-sm">
+                            Eng yuqori ko'rsatkich: <span class="font-bold text-amber-400">${top[labelKey]}</span> 
+                            (${top[key].toLocaleString('uz-UZ')}). 
+                            ${isNegative ? 'Ushbu yo\'nalish bo\'yicha zudlik bilan nazorat o\'rnatish va sabablarni o\'rganish talab etiladi.' : 'Ushbu ko\'rsatkich bo\'yicha o\'sish tendentsiyasi ijobiy baholanadi.'}
+                        </p>
+                    </div>
+                `;
             });
         }
 
-        // Barcha listlarni birdaniga yuklash
-        async function loadAllSheets() {
-            document.getElementById('status').innerText = 'Jadvallar o\'qilmoqda...';
-            
-            const fetchPromises = SHEET_NAMES.map(name => fetchSheetData(name));
-            const results = await Promise.all(fetchPromises);
-            
-            let loadedCount = 0;
-            const tabsContainer = document.getElementById('tabs-container');
-            tabsContainer.innerHTML = '';
+        function createChartBlock(parent, type, title, data, labelKey, keys) {
+            const id = 'chart-' + Math.random().toString(36).substr(2, 9);
+            const container = document.createElement('div');
+            container.className = 'glass-card';
+            container.innerHTML = `<h3 class="text-sm font-black text-slate-700 uppercase mb-6 tracking-wide border-b pb-4">${title}</h3><div class="h-72"><canvas id="${id}"></canvas></div>`;
+            parent.appendChild(container);
 
-            results.forEach((res, index) => {
-                if(res.data.length > 0) {
-                    sheetsData[res.name] = res.data;
-                    loadedCount++;
-                    
-                    let btn = document.createElement('button');
-                    btn.className = `tab-btn px-4 py-3 rounded-t-lg font-medium text-sm text-slate-600 hover:bg-slate-200 ${loadedCount === 1 ? 'active' : ''}`;
-                    btn.innerText = res.name.replace(/_/g, ' ').substring(0, 20) + (res.name.length > 20 ? '...' : '');
-                    btn.onclick = () => switchTab(res.name, btn);
-                    tabsContainer.appendChild(btn);
-                }
-            });
-
-            if(loadedCount > 0) {
-                document.getElementById('status').innerText = `${loadedCount} ta bo'linma faol`;
-                document.getElementById('status').classList.replace('bg-blue-50', 'bg-emerald-50');
-                document.getElementById('status').classList.replace('text-blue-700', 'text-emerald-700');
-                
-                const firstSheetName = Object.keys(sheetsData)[0];
-                renderDashboardForSheet(firstSheetName);
-            } else {
-                document.getElementById('status').innerText = 'Ma\'lumot topilmadi! List nomlari yoki Ruxsatni tekshiring.';
-                document.getElementById('status').classList.replace('bg-blue-50', 'bg-red-50');
-                document.getElementById('status').classList.replace('text-blue-700', 'text-red-700');
-            }
-        }
-
-        function switchTab(sheetName, clickedBtn) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            clickedBtn.classList.add('active');
-            renderDashboardForSheet(sheetName);
-        }
-
-        // --- HAR BIR LIST UCHUN TAHLIL VA GRAFIK YARATISH ALGORITMI ---
-        function renderDashboardForSheet(sheetName) {
-            const data = sheetsData[sheetName];
-            if(!data || data.length === 0) return;
-
-            activeCharts.forEach(chart => chart.destroy());
-            activeCharts = [];
-
-            const kpiContainer = document.getElementById('kpi-container');
-            const chartsContainer = document.getElementById('charts-container');
-            const analysisUl = document.getElementById('analysis-text');
-            
-            kpiContainer.innerHTML = ''; chartsContainer.innerHTML = ''; analysisUl.innerHTML = '';
-
-            // Ustunlarni tahlil qilish (Matnli vs Raqamli)
-            const headers = Object.keys(data[0]);
-            
-            // Hudud nomini topish (odatda matnli bo'ladi)
-            let labelCol = headers.find(h => isNaN(parseNum(data[0][h]))) || headers[0]; 
-            
-            // Faqat raqamli ustunlarni ajratib olish
-            let numCols = headers.filter(h => h !== labelCol && !isNaN(parseNum(data[0][h])));
-
-            let labels = [];
-            let totals = {};
-            numCols.forEach(col => totals[col] = 0);
-
-            data.forEach(row => {
-                let lbl = row[labelCol] ? row[labelCol].toString().trim() : 'Noma\'lum';
-                labels.push(lbl);
-                numCols.forEach(col => { totals[col] += parseNum(row[col]); });
-            });
-
-            // 1. KPI KARTOCHKALAR (Eng muhim 6 ta ko'rsatkich)
-            const cardColors = ['blue', 'emerald', 'indigo', 'purple', 'fuchsia', 'cyan'];
-            numCols.slice(0, 6).forEach((col, idx) => {
-                let val = totals[col];
-                let isWarning = col.toLowerCase().match(/npl|muammo|to'xta|qarz|muddat/);
-                let color = isWarning ? 'red' : cardColors[idx % cardColors.length];
-                
-                kpiContainer.innerHTML += `
-                    <div class="glass-card border-l-4 border-${color}-500 p-4">
-                        <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mb-1 truncate" title="${col}">${col.replace(/_/g, ' ')}</p>
-                        <p class="text-lg sm:text-xl font-black text-slate-800">${val > 1000 ? val.toLocaleString('uz-UZ') : val.toFixed(1)}</p>
-                    </div>`;
-            });
-
-            // 2. TEMATIK GRAFIKLAR (Barcha ehtimoliy holatlar uchun)
-            if(numCols.length >= 1) {
-                // Bar Chart: Asosiy solishtiruv (1 yoki 2 ta ustun)
-                createCanvas('chart1', `Asosiy reyting: ${labelCol} kesimida`);
-                let datasets1 = numCols.slice(0, 2).map((col, i) => ({
-                    label: col.replace(/_/g, ' '),
-                    data: data.map(r => parseNum(r[col])),
-                    backgroundColor: i === 0 ? '#3b82f6' : '#10b981',
-                    borderRadius: 3
-                }));
-                buildChart('chart1', 'bar', labels, datasets1);
-            }
-
-            if(numCols.length >= 3) {
-                // Combo Chart: 3-chi va 4-chi ko'rsatkichlar (Masalan Qoldiq va NPL)
-                createCanvas('chart2', `Qo'shimcha dinamika va xatarlar`);
-                let datasets2 = [
-                    { label: numCols[2].replace(/_/g, ' '), data: data.map(r => parseNum(r[numCols[2]])), type: 'bar', backgroundColor: '#8b5cf6', yAxisID: 'y' }
-                ];
-                if(numCols[3]) {
-                    datasets2.push({ label: numCols[3].replace(/_/g, ' '), data: data.map(r => parseNum(r[numCols[3]])), type: 'line', borderColor: '#f43f5e', borderWidth: 2, yAxisID: 'y1' });
-                }
-                buildChart('chart2', 'bar', labels, datasets2, { scales: { y: { position: 'left' }, y1: { position: 'right', display: !!numCols[3] } } });
-            }
-
-            if(numCols.length >= 1) {
-                // Doughnut Chart: Umumiy hajmdagi ulushlar (Faqat musbat miqdorlar uchun)
-                createCanvas('chart3', `${numCols[0].replace(/_/g, ' ')} bo'yicha ulushlar`);
-                let pData = data.map(r => Math.max(0, parseNum(r[numCols[0]])));
-                let colors = labels.map((_, i) => `hsl(${(i * 360) / labels.length}, 75%, 55%)`);
-                buildChart('chart3', 'doughnut', labels, [{ data: pData, backgroundColor: colors, borderWidth: 0 }], { cutout: '60%' });
-            }
-
-            // 3. AQLLI XULOSA YARATISH (Har bir ustun bo'yicha "Qizil" va "Yashil" hududlarni topish)
-            let summaryHTML = '';
-            let loopLimit = Math.min(numCols.length, 4); // Dastlabki 4 ta muhim ustunni tahlil qilamiz
-
-            for(let i=0; i<loopLimit; i++) {
-                let col = numCols[i];
-                let colNameClean = col.replace(/_/g, ' ');
-                
-                // Ustundagi eng katta va eng kichik natijaga ega obyektlarni (qatorlarni) topamiz
-                let maxRow = data.reduce((prev, curr) => parseNum(curr[col]) > parseNum(prev[col]) ? curr : prev, data[0]);
-                let minRow = data.reduce((prev, curr) => parseNum(curr[col]) < parseNum(prev[col]) ? curr : prev, data[0]);
-                
-                let maxVal = parseNum(maxRow[col]).toLocaleString('uz-UZ');
-                
-                let isRisk = col.toLowerCase().match(/npl|muammo|qarz|to'xtat|muddat/);
-
-                if (isRisk) {
-                    // Agar xatarli ko'rsatkich bo'lsa (NPL, Qarz) -> Eng ko'p bo'lgan hudud bu MUAMMO.
-                    summaryHTML += `
-                        <li class="bg-rose-900/30 p-3 rounded-lg border-l-4 border-rose-500">
-                            <span class="font-bold text-rose-400 block mb-1">🔴 Diqqat talab qilinadigan xatar (${colNameClean}):</span>
-                            <strong>${maxRow[labelCol]}</strong> hududida ushbu salbiy ko'rsatkich eng yuqori nuqtaga (${maxVal}) yetgan. 
-                            <strong>Muhokama uchun masala:</strong> Ushbu ob'ektlarga joyiga chiqqan holda maqsadli ishchi guruh yuborilishi va garov ta'minoti qoplanishi bo'yicha qat'iy nazorat o'rnatilishi tavsiya etiladi.
-                        </li>`;
-                } else {
-                    // Agar oddiy/ijobiy ko'rsatkich bo'lsa (Ajratilgan kredit, Loyiha soni)
-                    summaryHTML += `
-                        <li class="bg-slate-700/50 p-3 rounded-lg border-l-4 border-emerald-500">
-                            <span class="font-bold text-emerald-400 block mb-1">🟢 Yetakchi va qoloq hududlar (${colNameClean}):</span>
-                            Respublika bo'yicha jami qiymatning eng katta qismi <strong>${maxRow[labelCol]}</strong> (${maxVal}) hissasiga to'g'ri kelmoqda. 
-                            Aksincha, <strong>${minRow[labelCol]}</strong> da bu ko'rsatkich eng past. 
-                            <strong>Muhokama uchun masala:</strong> Qoloq hududlardagi sustkashlik byurokratik to'siqlarmi yoki talabgorlar yo'qligimi, sababini o'rganish lozim.
-                        </li>`;
-                }
-            }
-            
-            // Xulosa bo'sh bo'lsa matn yozib qoyish
-            analysisUl.innerHTML = summaryHTML || "<li class='text-slate-400'>Ushbu list bo'yicha xulosa yaratish uchun raqamli ma'lumotlar yetarli emas.</li>";
-        }
-
-        // GRAFIK CHIZISH YORDAMCHI FUNKSIYALARI
-        function createCanvas(id, title) {
-            document.getElementById('charts-container').innerHTML += `
-                <div class="glass-card">
-                    <h2 class="text-sm font-bold text-slate-700 mb-4 pb-2 border-b border-slate-200 truncate" title="${title}">${title}</h2>
-                    <div class="relative h-[200px] w-full"><canvas id="${id}"></canvas></div>
-                </div>`;
-        }
-
-        function buildChart(id, type, labels, datasets, extraOptions = {}) {
-            let ctx = document.getElementById(id);
-            if(!ctx) return;
-            let chart = new Chart(ctx, {
+            const ctx = document.getElementById(id).getContext('2d');
+            const newChart = new Chart(ctx, {
                 type: type,
-                data: { labels: labels, datasets: datasets },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: type === 'doughnut' ? 'right' : 'top', labels: { boxWidth: 10, font: {size: 10} } } },
-                    ...extraOptions 
-                }
+                data: {
+                    labels: data.map(r => r[labelKey]),
+                    datasets: keys.map((k, i) => ({
+                        label: k.replace(/_/g, ' '),
+                        data: data.map(r => r[k]),
+                        backgroundColor: i === 0 ? 'rgba(37, 99, 235, 0.8)' : 'rgba(99, 102, 241, 0.8)',
+                        borderColor: i === 0 ? '#2563eb' : '#6366f1',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }))
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { weight: '600', size: 10 } } } } }
             });
-            activeCharts.push(chart);
+            chartInstances.push(newChart);
         }
-
     </script>
 </body>
 </html>
